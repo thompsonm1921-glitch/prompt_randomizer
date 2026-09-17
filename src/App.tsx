@@ -31,10 +31,12 @@ function App() {
         </button>
       </div>
 
-      {/* Tab Content */}
-      <div className="p-4">
-        {activeTab === 'randomizer' && <RandomizerTab />}
-        {activeTab === 'createTable' && <CreateTableTab />}
+      {/* Tab Content — оба компонента всегда примонтированы, просто скрываются через CSS */}
+      <div className={activeTab === 'randomizer' ? 'p-4' : 'hidden'}>
+        <RandomizerTab />
+      </div>
+      <div className={activeTab === 'createTable' ? 'p-4' : 'hidden'}>
+        <CreateTableTab />
       </div>
     </div>
   );
