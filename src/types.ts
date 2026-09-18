@@ -1,4 +1,4 @@
---- src/types.ts (原始)
+--- src/types.ts
 export interface ColumnData {
   id: string;
   header: string;
@@ -26,7 +26,7 @@ export type BlockItem =
   | { type: 'manual'; data: ManualInputData };
 
 
-+++ src/types.ts (修改后)
++++ src/types.ts 
 export interface ColumnData {
   id: string;
   header: string;
