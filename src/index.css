@@ -40,22 +40,18 @@ input[type="number"]::-webkit-outer-spin-button {
 /* Frozen column animation */
 @keyframes pulse-cyan {
   0%, 100% {
-    border-color: rgb(8 145 178);
+    border-color: #0891b2;
   }
   50% {
-    border-color: rgb(34 211 238);
+    border-color: #22d3ee;
   }
 }
 
-.border-cyan-600 {
+.frozen-border {
   animation: pulse-cyan 2s ease-in-out infinite;
 }
 
 /* Search dropdown animation */
-.dropdown-enter {
-  animation: slideDown 0.15s ease-out;
-}
-
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -65,4 +61,8 @@ input[type="number"]::-webkit-outer-spin-button {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.dropdown-enter {
+  animation: slideDown 0.15s ease-out;
 }

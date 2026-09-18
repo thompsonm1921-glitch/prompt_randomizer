@@ -72,7 +72,7 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
       className={`border rounded-lg p-3 transition-all ${
         column.enabled
           ? column.frozen
-            ? 'border-cyan-600 bg-gray-800'
+            ? 'border-cyan-500 bg-gray-800 frozen-border'
             : 'border-gray-600 bg-gray-800'
           : 'border-gray-700 bg-gray-800/30 opacity-50'
       }`}
