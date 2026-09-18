@@ -1,4 +1,4 @@
---- src/components/RandomizerTab.tsx
+
 import { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { TableBlockData, ManualInputData, BlockItem, ColumnData } from '../types';
