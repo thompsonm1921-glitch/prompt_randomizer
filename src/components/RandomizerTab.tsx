@@ -54,6 +54,8 @@ function parseSpreadsheet(data: ArrayBuffer, fileName: string): TableBlockData {
       values,
       enabled: true,
       count: 1,
+      weight: 1,
+      frozen: false,
       selectedValues,
       showOnlySelected: false,
     };
@@ -151,7 +153,7 @@ export default function RandomizerTab() {
       prev.map((b) => {
         if (b.type === 'table' && b.data.id === blockId) {
           const newColumns = b.data.columns.map((col) => {
-            if (col.id === colId) {
+            if (col.id === colId && !col.frozen) {
               return { ...col, selectedValues: getRandomItems(col.values, col.count) };
             }
             return col;
@@ -170,7 +172,7 @@ export default function RandomizerTab() {
         if (b.type === 'table' && b.data.id === blockId) {
           const newColumns = b.data.columns.map((col) => ({
             ...col,
-            selectedValues: getRandomItems(col.values, col.count),
+            selectedValues: col.frozen ? col.selectedValues : getRandomItems(col.values, col.count),
           }));
           return { type: 'table', data: { ...b.data, columns: newColumns } };
         }
@@ -186,7 +188,7 @@ export default function RandomizerTab() {
         if (b.type === 'table') {
           const newColumns = b.data.columns.map((col) => ({
             ...col,
-            selectedValues: getRandomItems(col.values, col.count),
+            selectedValues: col.frozen ? col.selectedValues : getRandomItems(col.values, col.count),
           }));
           return { type: 'table', data: { ...b.data, columns: newColumns } };
         }
@@ -201,7 +203,12 @@ export default function RandomizerTab() {
     for (const colId of tableData.columnOrder) {
       const col = tableData.columns.find((c) => c.id === colId);
       if (col && col.enabled && col.selectedValues.length > 0) {
-        parts.push(col.selectedValues.join(', '));
+        if (col.weight > 1) {
+          // Формат: (тег1, тег2:вес)
+          parts.push(`(${col.selectedValues.join(', ')}:${col.weight})`);
+        } else {
+          parts.push(col.selectedValues.join(', '));
+        }
       }
     }
     return parts.join(', ');

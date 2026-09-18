@@ -36,3 +36,33 @@ input[type="number"]::-webkit-outer-spin-button {
   border-color: #3b82f6 !important;
   background-color: rgba(59, 130, 246, 0.1) !important;
 }
+
+/* Frozen column animation */
+@keyframes pulse-cyan {
+  0%, 100% {
+    border-color: rgb(8 145 178);
+  }
+  50% {
+    border-color: rgb(34 211 238);
+  }
+}
+
+.border-cyan-600 {
+  animation: pulse-cyan 2s ease-in-out infinite;
+}
+
+/* Search dropdown animation */
+.dropdown-enter {
+  animation: slideDown 0.15s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

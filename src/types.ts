@@ -4,6 +4,8 @@ export interface ColumnData {
   values: string[];
   enabled: boolean;
   count: number;
+  weight: number;
+  frozen: boolean;
   selectedValues: string[];
   showOnlySelected: boolean;
 }
@@ -12,7 +14,7 @@ export interface TableBlockData {
   id: string;
   fileName: string;
   columns: ColumnData[];
-  columnOrder: string[]; // order of column IDs for drag-sort
+  columnOrder: string[];
 }
 
 export interface ManualInputData {
