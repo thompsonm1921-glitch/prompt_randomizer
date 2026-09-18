@@ -1,18 +1,15 @@
---- start.bat (原始)
-
-
-+++ start.bat (修改后)
 @echo off
+chcp 65001 >nul
 title Prompt Randomizer
 echo.
 echo ========================================
-echo   Prompt Randomizer - Запуск...
+echo   Prompt Randomizer - Starting...
 echo ========================================
 echo.
-echo Сервер запустится на http://localhost:3000
+echo Server will run on http://localhost:3000
 echo.
-echo Чтобы остановить сервер - нажми Ctrl+C
-echo или просто закрой это окно.
+echo To stop server - press Ctrl+C
+echo or just close this window.
 echo.
 echo ========================================
 echo.
