@@ -451,7 +451,6 @@ export default function RandomizerTab() {
 }
 
 
-+++ src/components/RandomizerTab.tsx (修改后)
 import { useState, useRef } from 'react';
 import * as XLSX from 'xlsx';
 import { TableBlockData, ManualInputData, BlockItem, ColumnData } from '../types';
