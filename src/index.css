@@ -1,45 +1,3 @@
---- src/index.css (原始)
-@import "tailwindcss";
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #1f2937;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #4b5563;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #6b7280;
-}
-
-/* Smooth transitions */
-* {
-  scroll-behavior: smooth;
-}
-
-/* Number input arrows styling */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  opacity: 1;
-}
-
-/* Drag over highlight */
-.drag-over {
-  border-color: #3b82f6 !important;
-  background-color: rgba(59, 130, 246, 0.1) !important;
-}
-
-
-+++ src/index.css (修改后)
 @import "tailwindcss";
 
 /* Custom scrollbar */
@@ -82,22 +40,18 @@ input[type="number"]::-webkit-outer-spin-button {
 /* Frozen column animation */
 @keyframes pulse-cyan {
   0%, 100% {
-    border-color: rgb(8 145 178);
+    border-color: #0891b2;
   }
   50% {
-    border-color: rgb(34 211 238);
+    border-color: #22d3ee;
   }
 }
 
-.border-cyan-600 {
+.frozen-border {
   animation: pulse-cyan 2s ease-in-out infinite;
 }
 
 /* Search dropdown animation */
-.dropdown-enter {
-  animation: slideDown 0.15s ease-out;
-}
-
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -107,4 +61,8 @@ input[type="number"]::-webkit-outer-spin-button {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.dropdown-enter {
+  animation: slideDown 0.15s ease-out;
 }
