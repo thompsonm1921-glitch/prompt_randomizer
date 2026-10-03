@@ -35,7 +35,7 @@ function parseSpreadsheet(data: ArrayBuffer, fileName: string): TableBlockData {
   const jsonData = XLSX.utils.sheet_to_json<string[]>(sheet, { header: 1 });
 
   if (jsonData.length === 0) {
-    return { id: generateId(), fileName, columns: [], columnOrder: [] };
+    return { id: generateId(), fileName, columns: [], columnOrder: [], collapsed: false };
   }
 
   const headers = jsonData[0].map((h) => String(h || 'Пусто'));
@@ -58,10 +58,11 @@ function parseSpreadsheet(data: ArrayBuffer, fileName: string): TableBlockData {
       frozen: false,
       selectedValues,
       showOnlySelected: false,
+      listCollapsed: true,
     };
   });
 
-  return { id: generateId(), fileName, columns, columnOrder };
+  return { id: generateId(), fileName, columns, columnOrder, collapsed: false };
 }
 
 export default function RandomizerTab() {
@@ -73,10 +74,12 @@ export default function RandomizerTab() {
         fileName: '',
         columns: [],
         columnOrder: [],
+        collapsed: false,
       },
     },
   ]);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [copyTooltip, setCopyTooltip] = useState(false);
   const fileInputRefs = useRef<Map<string, HTMLInputElement>>(new Map());
 
   const sensors = useSensors(
@@ -93,6 +96,7 @@ export default function RandomizerTab() {
       fileName: '',
       columns: [],
       columnOrder: [],
+      collapsed: false,
     };
     setBlocks((prev) => [...prev, { type: 'table', data: newBlock }]);
   };
@@ -189,6 +193,17 @@ export default function RandomizerTab() {
     );
   };
 
+  const toggleTableCollapse = (blockId: string) => {
+    setBlocks((prev) =>
+      prev.map((b) => {
+        if (b.type === 'table' && b.data.id === blockId) {
+          return { type: 'table', data: { ...b.data, collapsed: !b.data.collapsed } };
+        }
+        return b;
+      })
+    );
+  };
+
   const getTableBlockResult = (tableData: TableBlockData): string => {
     const parts: string[] = [];
     for (const colId of tableData.columnOrder) {
@@ -266,6 +281,15 @@ export default function RandomizerTab() {
     setBlocks((prev) => prev.filter((b) => getBlockId(b) !== blockId));
   };
 
+  const handleCopy = () => {
+    const text = getGlobalResult();
+    if (text) {
+      navigator.clipboard.writeText(text);
+      setCopyTooltip(true);
+      setTimeout(() => setCopyTooltip(false), 2000);
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -299,6 +323,13 @@ export default function RandomizerTab() {
                           <span className="text-gray-500">Перетащите файл сюда или нажмите кнопку →</span>
                         )}
                       </div>
+                      <button
+                        onClick={() => toggleTableCollapse(tableData.id)}
+                        className="px-3 py-2 bg-gray-600 hover:bg-gray-500 rounded text-sm transition-colors whitespace-nowrap"
+                        title={tableData.collapsed ? 'Развернуть' : 'Свернуть'}
+                      >
+                        {tableData.collapsed ? '▼' : '▲'}
+                      </button>
                       <input
                         type="file"
                         accept=".xlsx,.xls,.csv"
@@ -326,7 +357,7 @@ export default function RandomizerTab() {
                       </button>
                     </div>
 
-                    {tableData.columns.length > 0 && (
+                    {tableData.columns.length > 0 && !tableData.collapsed && (
                       <>
                         <DndContext
                           sensors={sensors}
@@ -366,6 +397,12 @@ export default function RandomizerTab() {
                           </button>
                         </div>
                       </>
+                    )}
+
+                    {tableData.columns.length > 0 && tableData.collapsed && (
+                      <div className="bg-gray-900 border border-gray-600 rounded px-3 py-2 text-sm text-gray-300 break-all">
+                        {getTableBlockResult(tableData) || <span className="text-gray-600">Результат...</span>}
+                      </div>
                     )}
                   </div>
                 </SortableBlockWrapper>
@@ -410,7 +447,7 @@ export default function RandomizerTab() {
           <div className="flex-1 bg-gray-900 border border-gray-600 rounded px-4 py-3 text-gray-200 min-h-[60px] break-all">
             {getGlobalResult() || <span className="text-gray-600">Здесь появится итоговый текст...</span>}
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 relative">
             <button
               onClick={randomizeAll}
               className="px-6 py-3 bg-purple-600 hover:bg-purple-700 rounded text-sm font-bold transition-colors whitespace-nowrap"
@@ -418,15 +455,17 @@ export default function RandomizerTab() {
               🎲 Random (всё)
             </button>
             <button
-              onClick={() => {
-                const text = getGlobalResult();
-                if (text) navigator.clipboard.writeText(text);
-              }}
+              onClick={handleCopy}
               className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded text-xs font-medium transition-colors whitespace-nowrap"
               title="Скопировать в буфер обмена"
             >
               📋 Копировать
             </button>
+            {copyTooltip && (
+              <div className="absolute top-full mt-2 left-0 bg-green-600 text-white text-xs px-3 py-2 rounded whitespace-nowrap z-50">
+                ✓ Текст скопирован в буфер обмена
+              </div>
+            )}
           </div>
         </div>
       </div>
