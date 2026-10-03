@@ -209,7 +209,7 @@ export default function RandomizerTab() {
     for (const colId of tableData.columnOrder) {
       const col = tableData.columns.find((c) => c.id === colId);
       if (col && col.enabled && col.selectedValues.length > 0) {
-        if (col.weight > 1) {
+        if (col.weight !== 1) {
           parts.push(`(${col.selectedValues.join(', ')}:${col.weight})`);
         } else {
           parts.push(col.selectedValues.join(', '));
