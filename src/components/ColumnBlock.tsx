@@ -29,9 +29,7 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
     opacity: isDragging ? 0.5 : 1,
   };
 
-  const displayValues = column.showOnlySelected
-    ? column.selectedValues
-    : column.values;
+  const displayValues = column.values;
 
   const filteredTags = searchQuery.trim()
     ? column.values.filter(tag =>
@@ -144,7 +142,7 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
           <span className="text-xs text-gray-400" title="Вес тега">⚖️</span>
           <input
             type="number"
-            min={0.01}
+            min={0.00}
             max={99.99}
             step={0.1}
             value={column.weight}
@@ -152,7 +150,7 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
               let val = parseFloat(e.target.value);
               if (isNaN(val)) val = 1;
               val = Math.max(0.01, Math.min(99.99, val));
-              onUpdate({ weight: Math.round(val * 100) / 100 });
+              onUpdate({ weight: parseFloat(val.toFixed(1)) });
             }}
             className="w-14 h-6 bg-gray-900 border border-gray-600 rounded text-center text-xs text-gray-200"
             title="Вес тега (0.01-99.99, шаг стрелок 0.1)"
@@ -166,19 +164,6 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
           title="Рандомизировать этот столбец"
         >
           🎲
-        </button>
-
-        {/* Show toggle */}
-        <button
-          onClick={() => onUpdate({ showOnlySelected: !column.showOnlySelected })}
-          className={`px-2 py-1 rounded text-xs transition-colors flex-shrink-0 ${
-            column.showOnlySelected
-              ? 'bg-orange-600 hover:bg-orange-700'
-              : 'bg-gray-600 hover:bg-gray-500'
-          }`}
-          title={column.showOnlySelected ? 'Показать только выбранное' : 'Показать всё содержимое'}
-        >
-          {column.showOnlySelected ? '🎯' : '📋'}
         </button>
 
         {/* List collapse toggle */}
@@ -259,7 +244,7 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
       {/* Selected values indicator */}
       {column.enabled && column.selectedValues.length > 0 && (
         <div className="mt-2 text-xs text-blue-400">
-          {column.weight > 1 ? (
+          {column.weight !== 1 ? (
             <>Выбрано: ({column.selectedValues.join(', ')}:{column.weight})</>
           ) : (
             <>Выбрано: {column.selectedValues.join(', ')}</>
