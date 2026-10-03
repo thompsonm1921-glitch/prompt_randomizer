@@ -33,14 +33,12 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
     ? column.selectedValues
     : column.values;
 
-  // Фильтрация тегов по поисковому запросу
   const filteredTags = searchQuery.trim()
     ? column.values.filter(tag =>
         tag.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : [];
 
-  // Закрытие dropdown при клике вне
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -51,7 +49,6 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Добавление тега к выбранным
   const addTag = (tag: string) => {
     if (!column.selectedValues.includes(tag)) {
       onUpdate({ selectedValues: [...column.selectedValues, tag] });
@@ -60,7 +57,6 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
     setShowDropdown(false);
   };
 
-  // Удаление тега из выбранных
   const removeTag = (tag: string) => {
     onUpdate({ selectedValues: column.selectedValues.filter(t => t !== tag) });
   };
@@ -77,22 +73,32 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
           : 'border-gray-700 bg-gray-800/30 opacity-50'
       }`}
     >
-      {/* Header row */}
-      <div className="flex items-center gap-2 mb-2">
-        {/* Drag handle */}
+      {/* Category name on top */}
+      <div className="flex items-center gap-2 mb-3">
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing text-gray-500 hover:text-gray-300"
+          className="cursor-grab active:cursor-grabbing text-gray-500 hover:text-gray-300 flex-shrink-0"
           title="Перетащить"
         >
           ⠿
         </div>
+        <div className="flex-1 min-w-0">
+          <div
+            className="font-medium text-sm text-gray-200 truncate"
+            title={column.header}
+          >
+            {column.header}
+          </div>
+        </div>
+      </div>
 
+      {/* Controls row */}
+      <div className="flex items-center gap-2 mb-2 flex-wrap">
         {/* Enable/disable toggle */}
         <button
           onClick={() => onUpdate({ enabled: !column.enabled })}
-          className={`w-8 h-5 rounded-full relative transition-colors ${
+          className={`w-8 h-5 rounded-full relative transition-colors flex-shrink-0 ${
             column.enabled ? 'bg-green-500' : 'bg-gray-600'
           }`}
           title={column.enabled ? 'Включено' : 'Выключено'}
@@ -107,7 +113,7 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
         {/* Freeze button */}
         <button
           onClick={() => onUpdate({ frozen: !column.frozen })}
-          className={`px-2 py-1 rounded text-xs transition-colors ${
+          className={`px-2 py-1 rounded text-xs transition-colors flex-shrink-0 ${
             column.frozen
               ? 'bg-cyan-600 hover:bg-cyan-700 text-white'
               : 'bg-gray-600 hover:bg-gray-500 text-gray-300'
@@ -118,52 +124,54 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
         </button>
 
         {/* Count input */}
-        <input
-          type="number"
-          min={1}
-          value={column.count}
-          onChange={(e) => {
-            const val = Math.max(1, parseInt(e.target.value) || 1);
-            onUpdate({ count: val });
-          }}
-          className="w-12 h-6 bg-gray-900 border border-gray-600 rounded text-center text-xs text-gray-200"
-          title="Количество строк для рандома"
-        />
-
-        {/* Weight input */}
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-400" title="Вес тега">⚖️</span>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <span className="text-xs text-gray-400" title="Количество тегов">#</span>
           <input
             type="number"
             min={1}
-            value={column.weight}
+            value={column.count}
             onChange={(e) => {
               const val = Math.max(1, parseInt(e.target.value) || 1);
-              onUpdate({ weight: val });
+              onUpdate({ count: val });
             }}
             className="w-12 h-6 bg-gray-900 border border-gray-600 rounded text-center text-xs text-gray-200"
-            title="Вес тега (если > 1, формат: (тег:вес))"
+            title="Количество строк для рандома"
+          />
+        </div>
+
+        {/* Weight input */}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          <span className="text-xs text-gray-400" title="Вес тега">⚖️</span>
+          <input
+            type="number"
+            min={0.01}
+            max={99.99}
+            step={0.1}
+            value={column.weight}
+            onChange={(e) => {
+              let val = parseFloat(e.target.value);
+              if (isNaN(val)) val = 1;
+              val = Math.max(0.01, Math.min(99.99, val));
+              onUpdate({ weight: Math.round(val * 100) / 100 });
+            }}
+            className="w-14 h-6 bg-gray-900 border border-gray-600 rounded text-center text-xs text-gray-200"
+            title="Вес тега (0.01-99.99, шаг стрелок 0.1)"
           />
         </div>
 
         {/* Randomize button */}
         <button
           onClick={onRandomize}
-          className="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs transition-colors"
+          className="px-2 py-1 bg-blue-600 hover:bg-blue-700 rounded text-xs transition-colors flex-shrink-0"
           title="Рандомизировать этот столбец"
         >
           🎲
         </button>
 
-        {/* Category name */}
-        <span className="font-medium text-sm text-gray-200 truncate flex-1">
-          {column.header}
-        </span>
-
         {/* Show toggle */}
         <button
           onClick={() => onUpdate({ showOnlySelected: !column.showOnlySelected })}
-          className={`px-2 py-1 rounded text-xs transition-colors ${
+          className={`px-2 py-1 rounded text-xs transition-colors flex-shrink-0 ${
             column.showOnlySelected
               ? 'bg-orange-600 hover:bg-orange-700'
               : 'bg-gray-600 hover:bg-gray-500'
@@ -171,6 +179,15 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
           title={column.showOnlySelected ? 'Показать только выбранное' : 'Показать всё содержимое'}
         >
           {column.showOnlySelected ? '🎯' : '📋'}
+        </button>
+
+        {/* List collapse toggle */}
+        <button
+          onClick={() => onUpdate({ listCollapsed: !column.listCollapsed })}
+          className="px-2 py-1 bg-gray-600 hover:bg-gray-500 rounded text-xs transition-colors flex-shrink-0"
+          title={column.listCollapsed ? 'Показать список тегов' : 'Скрыть список тегов'}
+        >
+          {column.listCollapsed ? '▼' : '▲'}
         </button>
       </div>
 
@@ -222,20 +239,22 @@ export default function ColumnBlock({ column, onUpdate, onRandomize }: ColumnBlo
         </div>
       )}
 
-      {/* Values display */}
-      <div className="bg-gray-900/70 border border-gray-700 rounded p-2 max-h-32 overflow-y-auto">
-        <div className="text-xs text-gray-400 space-y-0.5">
-          {displayValues.length > 0 ? (
-            displayValues.map((val, i) => (
-              <div key={i} className="truncate">
-                {val}
-              </div>
-            ))
-          ) : (
-            <div className="text-gray-600 italic">Пусто</div>
-          )}
+      {/* Values display - collapsible */}
+      {!column.listCollapsed && (
+        <div className="bg-gray-900/70 border border-gray-700 rounded p-2 max-h-32 overflow-y-auto">
+          <div className="text-xs text-gray-400 space-y-0.5">
+            {displayValues.length > 0 ? (
+              displayValues.map((val, i) => (
+                <div key={i} className="truncate">
+                  {val}
+                </div>
+              ))
+            ) : (
+              <div className="text-gray-600 italic">Пусто</div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Selected values indicator */}
       {column.enabled && column.selectedValues.length > 0 && (
