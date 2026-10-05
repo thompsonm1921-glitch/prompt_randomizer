@@ -22,10 +22,25 @@ function generateId() {
   return Math.random().toString(36).substring(2, 11);
 }
 
-function getRandomItems(arr: string[], count: number): string[] {
+function getRandomItems(arr: string[], count: number, exclude?: string): string[] {
   if (count <= 0) return [];
-  const shuffled = [...arr].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, Math.min(count, arr.length));
+
+  // Защита от повтора подряд при count=1
+  let filteredArr = arr;
+  if (count === 1 && exclude && arr.length >= 2) {
+    filteredArr = arr.filter(item => item !== exclude);
+  }
+
+  const result = [...filteredArr];
+  const n = Math.min(count, result.length);
+
+  // Частичный Fisher-Yates shuffle - равномерный выбор без смещения
+  for (let i = 0; i < n; i++) {
+    const j = i + Math.floor(Math.random() * (result.length - i));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+
+  return result.slice(0, n);
 }
 
 function parseSpreadsheet(data: ArrayBuffer, fileName: string): TableBlockData {
@@ -152,7 +167,7 @@ export default function RandomizerTab() {
         if (b.type === 'table' && b.data.id === blockId) {
           const newColumns = b.data.columns.map((col) => {
             if (col.id === colId && !col.frozen) {
-              return { ...col, selectedValues: getRandomItems(col.values, col.count) };
+              return { ...col, selectedValues: getRandomItems(col.values, col.count, col.selectedValues[0]) };
             }
             return col;
           });
@@ -169,7 +184,7 @@ export default function RandomizerTab() {
         if (b.type === 'table' && b.data.id === blockId) {
           const newColumns = b.data.columns.map((col) => ({
             ...col,
-            selectedValues: col.frozen ? col.selectedValues : getRandomItems(col.values, col.count),
+            selectedValues: col.frozen ? col.selectedValues : getRandomItems(col.values, col.count, col.selectedValues[0]),
           }));
           return { type: 'table', data: { ...b.data, columns: newColumns } };
         }
@@ -184,7 +199,7 @@ export default function RandomizerTab() {
         if (b.type === 'table') {
           const newColumns = b.data.columns.map((col) => ({
             ...col,
-            selectedValues: col.frozen ? col.selectedValues : getRandomItems(col.values, col.count),
+            selectedValues: col.frozen ? col.selectedValues : getRandomItems(col.values, col.count, col.selectedValues[0]),
           }));
           return { type: 'table', data: { ...b.data, columns: newColumns } };
         }
